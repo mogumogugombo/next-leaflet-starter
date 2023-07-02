@@ -7,7 +7,7 @@ import styles from './Map.module.scss';
 import Box from '@mui/material/Box';
 import Slider from '@mui/material/Slider';
 import { FeatureGroup, Popup, Marker } from "react-leaflet";
-import TextField from '@mui/material/TextField';
+import MyMarkers from './MyMarkers';
 
 const { MapContainer } = ReactLeaflet;
 
@@ -59,20 +59,8 @@ const [sliderValue, setSliderValue] = useState(8)
 const changed = (e, value) => {
   console.log(JSON.stringify(points[value - 1]));
 };
-const Markers = () => {
-  console.log("Markers")
-  return (
-    points.map((point) => {
-      <Marker position={point}>
-        <Popup>
-          A pretty CSS3 popup. <br /> Easily customizable.
-        </Popup>
-      </Marker>        
-    })
-  )
-}
 
-const points2 = [
+const defaultPoints = [
   {
     lat: 52.230020586193795,
     lng: 21.01083755493164,
@@ -94,64 +82,17 @@ const points2 = [
     content: {label1: 'point 4', label2: 'ddd'}
   },
 ];
-const PopupContent = ({data, open, func1}) => {
-  useEffect(() => {
-    if (!open) {
-      func1(textValue);
+const [markerPoints, setMarkerPoints] = useState(defaultPoints);
+const onPopupClosed = (newLabel2, index) => {
+  const replacedPoints = markerPoints.map((x, index2) => {
+    if (index === index2) {
+      x.content.label2 = newLabel2;
     }
-  },[open]) 
-  const [textValue, setTextValue] = useState(data.label2);
-  const handleChange = (e) => {
-    setTextValue(e.target.value);
-  };
-
-  return (
-    <>
-    {/* <div>data={JSON.stringify(data)}</div> */}
-    <div> 
-      <TextField id="outlined-basic" label="label2" variant="outlined" 
-          value={textValue} 
-          onChange={handleChange}
-      />
-    </div>
-    {/* <div>open={open === true ? '1' : '0'}</div> */}
-    </>
-  )
+    return x;
+  });
+  setMarkerPoints(replacedPoints);
+  console.log('markerPoints=' + JSON.stringify(markerPoints));
 }
-const MyMarkers = ({ data }) => {
-  const [opens, setOpens] = useState([false, false, false, false]);
-  const func1 = (arg) => {
-    console.log('popupContent.Label2=' + arg);
-  }
-  return data.map(({ lat, lng, content }, index) => (
-    <Marker
-      key={index}
-      position={{ lat, lng }}
-      eventHandlers={{
-        popupopen: (e) => {
-          const newOpens = opens.map((x, index2) => {
-            return index === index2 ? true : x;
-          });
-          setOpens(newOpens);
-          console.log('popupopen')
-        },
-        popupclose: (e) => {
-          const newOpens = opens.map((x, index2) => {
-            return index === index2 ? false : x;
-          });
-          setOpens(newOpens);
-          console.log('popupclose')
-        },
-      }}
-    >
-      <Popup 
-      >
-        <PopupContent data={content} open={opens[index]} func1={func1}/>
-      </Popup>
-    </Marker>
-  ));
-}
-
 
 const DiscreteSlider = () => {
   return (
@@ -234,7 +175,7 @@ return (
             A pretty CSS3 popup. <br /> Easily customizable.
           </Popup>
         </Marker>        
-        <MyMarkers data={points2} />        
+        <MyMarkers data={markerPoints} onPopupClosed={onPopupClosed}/>        
       </MapContainer>
       <DiscreteSlider />
     </>
