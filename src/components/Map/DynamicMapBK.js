@@ -7,7 +7,6 @@ import styles from './Map.module.scss';
 import Box from '@mui/material/Box';
 import Slider from '@mui/material/Slider';
 import { FeatureGroup, Popup, Marker } from "react-leaflet";
-import TextField from '@mui/material/TextField';
 
 const { MapContainer } = ReactLeaflet;
 
@@ -96,32 +95,25 @@ const points2 = [
 ];
 const PopupContent = ({data, open, func1}) => {
   useEffect(() => {
-    if (!open) {
-      func1(textValue);
+    if (open) {
+      func1(data.label1 + ' opened!!');
+    } else {
+      func1(data.label1 + ' closed!!');
     }
   },[open]) 
-  const [textValue, setTextValue] = useState(data.label2);
-  const handleChange = (e) => {
-    setTextValue(e.target.value);
-  };
 
   return (
     <>
-    {/* <div>data={JSON.stringify(data)}</div> */}
-    <div> 
-      <TextField id="outlined-basic" label="label2" variant="outlined" 
-          value={textValue} 
-          onChange={handleChange}
-      />
-    </div>
-    {/* <div>open={open === true ? '1' : '0'}</div> */}
+    <div>data={JSON.stringify(data)}</div>
+    <div>open={open === true ? '1' : '0'}</div>
     </>
   )
 }
 const MyMarkers = ({ data }) => {
+
   const [opens, setOpens] = useState([false, false, false, false]);
   const func1 = (arg) => {
-    console.log('popupContent.Label2=' + arg);
+    console.log(arg);
   }
   return data.map(({ lat, lng, content }, index) => (
     <Marker
