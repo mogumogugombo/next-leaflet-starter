@@ -1015,10 +1015,20 @@ json-schema-traverse@^1.0.0:
   resolved "https://registry.npmjs.org/json-schema-traverse/-/json-schema-traverse-1.0.0.tgz"
   integrity sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==
 
+l.movemarker@^0.0.12:
+  version "0.0.12"
+  resolved "https://registry.npmjs.org/l.movemarker/-/l.movemarker-0.0.12.tgz"
+  integrity sha512-9TL7tM7VQ41V3lGexX4RpChms5DhlyFINCa5O6bVNE4g6MitKVaQV92QARZum+vBb0W2drXvMAUC5Eofvnk77A==
+
 leaflet-draw@^1.0.4:
   version "1.0.4"
   resolved "https://registry.npmjs.org/leaflet-draw/-/leaflet-draw-1.0.4.tgz"
   integrity sha512-rsQ6saQO5ST5Aj6XRFylr5zvarWgzWnrg46zQ1MEOEIHsppdC/8hnN8qMoFvACsPvTioAuysya/TVtog15tyAQ==
+
+leaflet.animatedmarker@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npmjs.org/leaflet.animatedmarker/-/leaflet.animatedmarker-1.0.0.tgz"
+  integrity sha512-dURiGulr/wTf2/jY1b5JxETpPdNIvU5UGtmmz3FIjdImEfbYShgZHwRepeywjjE7m02kF8nLjD5juE1z+tnWkA==
 
 leaflet@^1.8.0, leaflet@^1.9.0, leaflet@^1.9.3:
   version "1.9.3"

@@ -1,0 +1,78 @@
+以下は、JavaScriptとReactを使用して地図アプリを作成し、
+地図上の線（PolyLine）の上をマーカーがゆっくり動くようなコードの例です。
+leafletとreact-leafletパッケージがインストールされていることを前提としています。
+
+```jsx
+import React, { useEffect, useState } from 'react';
+import { Map, Polyline, Marker, TileLayer } from 'react-leaflet';
+
+const polylineOptions = {
+  color: 'blue',
+  weight: 3,
+};
+
+const App = () => {
+  const [positions, setPositions] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    // 線の座標データを取得するAPIなどからデータを取得する想定
+    // ここではダミーデータとして固定の座標を使用
+    const fetchPolylineData = async () => {
+      const polylineData = [
+        [35.6895, 139.6917], // 東京
+        [34.6937, 135.5023], // 大阪
+        [35.1815, 136.9066], // 名古屋
+        [35.6894, 139.6917], // 東京
+      ];
+
+      setPositions(polylineData);
+    };
+
+    fetchPolylineData();
+  }, []);
+
+  useEffect(() => {
+    const markerIndex = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % positions.length);
+    }, 1000); // マーカーの移動速度（ミリ秒）
+
+    return () => {
+      clearInterval(markerIndex);
+    };
+  }, [positions]);
+
+  return (
+    <Map center={[35.6895, 139.6917]} zoom={10}>
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution="Map data &copy; <a href=&quot;https://www.openstreetmap.org/&quot;>OpenStreetMap</a> contributors"
+      />
+      <Polyline positions={positions} pathOptions={polylineOptions} />
+      {positions.map((position, index) => (
+        <Marker
+          key={index}
+          position={position}
+          opacity={index === currentIndex ? 1 : 0} // 現在位置のマーカーのみを表示
+        />
+      ))}
+    </Map>
+  );
+};
+
+export default App;
+```
+
+このコードでは、`positions`という配列でPolyLineの座標データを管理しています。
+`useEffect`フックを使用して、線の座標データを取得し、`setPositions`を使って`positions`を設定しています。
+
+また、`currentIndex`という状態を使用して、現在のマーカーのインデックスを追跡します。
+`useEffect`フックを使用して、指定された速度で`currentIndex`を更新することで、
+マーカーを動かしています。`setInterval`を使用して、一定の時間ごとに`setCurrentIndex`を呼び出します。
+
+最後に、`Map`コンポーネント内で`Polyline`コンポーネントと`Marker`コンポーネントを使用して、
+地図上に線とマーカーを表示しています。`opacity`プロパティを使用して、
+現在位置のマーカーのみを表示するようにしています。
+
+以上が、JavaScriptとReact、leafletを使用して地図アプリで線の上をゆっくりと
+動くマーカーを実現するためのコード例です。
