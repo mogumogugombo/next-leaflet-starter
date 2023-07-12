@@ -9,6 +9,7 @@ import Box from '@mui/material/Box';
 import Slider from '@mui/material/Slider';
 import { FeatureGroup, Popup, Marker } from "react-leaflet";
 import MeasureMarkers from './MeasureMarkers';
+import MovingMarker from './MovingMarker';
 import 'l.movemarker';
 import { useMap } from 'react-leaflet'
 require('leaflet.animatedmarker/src/AnimatedMarker');
@@ -24,6 +25,10 @@ const Map = ({ children, className, width, height, ...rest }) => {
 
   const [sliderValue, setSliderValue] = useState(8)
   const [positions, setPositions] = useState([]);
+  const [positions1, setPositions1] = useState([]);
+  const [positions2, setPositions2] = useState([]);
+  const [positionsAll, setPositionsAll] = useState([]);
+  const [moveFlgs, setMoveFlgs] = useState([false, false]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [timerIndex, setTimerIndex] = useState(-1);
   const polylineOptions = {
@@ -58,87 +63,35 @@ const Map = ({ children, className, width, height, ...rest }) => {
   ];
 
   const points2 = [
-    [52.2308324251888, 21.011003851890568],
-    [52.2302804393307, 21.01121842861176],
-    [52.2297645891999, 21.011282801628116],
-    [52.22955759032849, 21.011492013931278],
-    [52.22956416173605, 21.01194798946381],
-    [52.22969558968336, 21.012285947799686],
-    [52.2300208721797, 21.012935042381287],
-    [52.230326438414374, 21.014378070831302],
+    [52.2318324251888, 21.011003851890568],
+    [52.2312804393307, 21.01121842861176],
+    [52.2307645891999, 21.011282801628116],
+    [52.23055759032849, 21.011492013931278],
+    [52.23056416173605, 21.01194798946381],
+    [52.23069558968336, 21.012285947799686],
+    [52.2310208721797, 21.012935042381287],
+    [52.231326438414374, 21.014378070831302],
   ];
-
-  let arrayPoints = []
-  arrayPoints.push(points1);
-  arrayPoints.push(points2);
 
   useEffect(() => {
     // 線の座標データを取得するAPIなどからデータを取得する想定
     // ここではダミーデータとして固定の座標を使用
     const fetchPolylineData = async () => {
       setPositions(points1);
+      setPositions1(points1);
+      setPositions2(points2);
+
+      let arrayPoints = []
+      arrayPoints.push(points1);
+      arrayPoints.push(points2);
+      setPositionsAll(arrayPoints);
     };
 
     fetchPolylineData();
   }, []);
 
   let markerIndex = 0;
-  // useEffect(() => {
-  //   markerIndex = setInterval(() => {
-  //     console.log('markerIndex=' + String(markerIndex));
-  //     console.log('positions.length=' + String(positions.length));
-  //     if (currentIndex < positions.length) {
-  //       setCurrentIndex((prevIndex) => {
-  //         console.log(prevIndex + 1);
-  //         return (prevIndex + 1);
-  //       });
-  //     }
-  //     // setCurrentIndex((prevIndex) => {
-  //     //   console.log((prevIndex + 1) % positions.length)
-  //     //   return (prevIndex + 1) % positions.length
-  //     // });
-  //   }, 1000); // マーカーの移動速度（ミリ秒）
 
-  //   return () => {
-  //     clearInterval(markerIndex);
-  //   };
-  // }, [positions]);
-
-  // const start = () => {
-  //   markerIndex = setInterval(() => {
-  //     console.log('markerIndex=' + String(markerIndex));
-  //     console.log('positions.length=' + String(positions.length));
-  //     if (currentIndex < positions.length) {
-  //       setCurrentIndex((prevIndex) => {
-  //         console.log('prevIndex + 1 =' + String(prevIndex + 1));
-  //         return (prevIndex + 1);
-  //       });
-  //     } else {
-  //       clearInterval(markerIndex);
-  //     }
-  //   }, 1000); // マーカーの移動速度（ミリ秒）
-  //   // clearInterval(markerIndex);
-
-  // }
-
-  // const start = () => {
-  //   const timerId = setInterval(() => {
-  //     if (currentIndex < 5) {
-  //       // console.log(currentIndex);
-  //       setCurrentIndex((prevIndex) => {
-  //         console.log('timerId=' + String(timerId));
-  //         console.log('prevIndex + 1=' + String(prevIndex + 1));
-  //         if (prevIndex + 1 > 5) {
-  //           clearInterval(timerId);
-  //         }
-  //         return (prevIndex + 1);
-  //       });
-  //     } else {
-  //       clearInterval(timerId);
-  //     }
-  //   }, 1000); 
-  // } 
-    
   const start = () => {
     if (currentIndex === positions.length - 1) {
       setCurrentIndex(0);
@@ -161,6 +114,15 @@ const Map = ({ children, className, width, height, ...rest }) => {
       clearInterval(timerIndex);
     }
   } 
+
+  const startTargetIdx = (index) => {
+    let newMoveFlgs = moveFlgs.map((x, index2) => (index === index2 ? true : x));
+    setMoveFlgs(newMoveFlgs);
+  }
+  const stopTargetIdx = (index) => {
+    let newMoveFlgs = moveFlgs.map((x, index2) => (index === index2 ? false : x));
+    setMoveFlgs(newMoveFlgs);
+  }
 
   //react-time-range-slider
 //https://ashvin27.github.io/react-time-range-slider/
@@ -325,17 +287,31 @@ return (
             opacity={index === currentIndex ? 1 : 0} // 現在位置のマーカーのみを表示
           />
         ))} */}
-        {
+
+        {/* {
           positions.length > 0 ? 
           <Marker
             position={positions[currentIndex]}
             // opacity={index === currentIndex ? 1 : 0} // 現在位置のマーカーのみを表示
           />
           : null
-        }
+        } */}
+
         <MeasureMarkers />
+        {/* <MovingMarker propPositions={positions1}/>
+        <MovingMarker propPositions={positions2}/> */}
+        { positionsAll.map((positionsItem, index) => (
+          <MovingMarker propPositions={positionsItem} move={moveFlgs[index]} whenStopped={() => stopTargetIdx(index)} />
+        ))}
+
       </MapContainer>
       <DiscreteSlider />
+      { positionsAll.map((positionsItem, index) => (
+        <>
+          <button onClick={() => startTargetIdx(index)}>start{index}</button>      
+          <button onClick={() => stopTargetIdx(index)}>stop{index}</button>      
+        </>
+      ))}
       <button
             onClick={() =>
               start()
