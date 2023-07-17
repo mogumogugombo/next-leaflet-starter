@@ -7,11 +7,14 @@ import { Polyline, Circle, Rectangle } from 'react-leaflet';
 import styles from './Map.module.scss';
 import Box from '@mui/material/Box';
 import Slider from '@mui/material/Slider';
-import { FeatureGroup, Popup, Marker } from "react-leaflet";
+import { FeatureGroup, Popup, Marker, LayersControl } from "react-leaflet";
 import MeasureMarkers from './MeasureMarkers';
 import MovingMarker from './MovingMarker';
+import MyMarkers from './MyMarkers';
 import 'l.movemarker';
 import { useMap } from 'react-leaflet'
+import Draggable from "react-draggable";
+
 require('leaflet.animatedmarker/src/AnimatedMarker');
 
 const { MapContainer } = ReactLeaflet;
@@ -22,6 +25,7 @@ const Map = ({ children, className, width, height, ...rest }) => {
   const mapRef = useRef(null);
   const mapRef2 = useRef(null);
   const fgRef = useRef();
+  const lcRef = useRef();
 
   const [sliderValue, setSliderValue] = useState(8)
   const [positions, setPositions] = useState([]);
@@ -31,6 +35,8 @@ const Map = ({ children, className, width, height, ...rest }) => {
   const [moveFlgs, setMoveFlgs] = useState([false, false]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [timerIndex, setTimerIndex] = useState(-1);
+  const [checkedPointsA, setCheckedPointsA] = useState(true);
+  const [checkedPointsB, setCheckedPointsB] = useState(true);
   const polylineOptions = {
     color: 'blue',
     weight: 3,
@@ -39,6 +45,10 @@ const Map = ({ children, className, width, height, ...rest }) => {
   if ( className ) {
     mapClassName = `${mapClassName} ${className}`;
   }
+
+  useEffect(() => {
+    console.log("DynamicMap. useEffect!!");
+  }, []);
 
   useEffect(() => {
     (async function init() {
@@ -182,15 +192,58 @@ const anchors = [
   }
 ];
 
-const onPopupClosed = (newLabel2, index) => {
+const onPopupClosed = (newLabel2, newLat, newLng, index) => {
   const replacedPoints = markerPoints.map((x, index2) => {
     if (index === index2) {
-      x.content.label2 = newLabel2;
+      let newValue = structuredClone(x);
+      newValue.content.label2 = newLabel2;
+      newValue.lat = newLat;
+      newValue.lng = newLng;
+      console.log('newValue=' + JSON.stringify(newValue));
+      return newValue;
+    } else {
+      return x;
     }
-    return x;
   });
   setMarkerPoints(replacedPoints);
-  console.log('markerPoints=' + JSON.stringify(markerPoints));
+}
+const onMoveEnd = (newLat, newLng, index) => {
+  const replacedPoints = markerPoints.map((x, index2) => {
+    if (index === index2) {
+      let newValue = structuredClone(x);
+      newValue.lat = newLat;
+      newValue.lng = newLng;
+      console.log('newValue=' + JSON.stringify(newValue));
+      return newValue;
+    } else {
+      return x;
+    }
+  });
+  setMarkerPoints(replacedPoints);
+}
+
+
+function DraggableBox() {
+  const box = {
+      background: '#fff',
+      // border: '1px solid #999',
+      borderRadius: '3px',
+      width: '180px',
+      height: '180px',
+      margin: '10px',
+      padding: '10px',
+      float: 'left',
+      cursor: 'auto'
+  };
+  // style={box}
+  return (
+  <Draggable>
+    <div>
+      <div style={{cursor: 'move'}}>Drag here</div>
+      <div>I can now be moved around!</div>
+    </div>
+    </Draggable>
+  );
 }
 
 const DiscreteSlider = () => {
@@ -217,7 +270,23 @@ const rectangle = [
   [52.230020586193795, 21.01083755493164]
 ]
 
+const pointsA = [
+  { lat: 52.230020586193795, lng: 21.01083755493164, title: "point A1" },
+  { lat: 52.22924516170657, lng: 21.011320352554325, title: "point A2" },
+  { lat: 52.229511304688444, lng: 21.01270973682404, title: "point A3" },
+  { lat: 52.23040500771883, lng: 21.012146472930908, title: "point A4" },
+];
 
+const pointsB = [
+  { lat: 52.229314161892106, lng: 21.012055277824405, title: "point B1" },
+  { lat: 52.22950144756943, lng: 21.01193726062775, title: "point B2" },
+  { lat: 52.22966573260081, lng: 21.011829972267154, title: "point B3" },
+  { lat: 52.2298333027065, lng: 21.011744141578678, title: "point B4" },
+  { lat: 52.2299680154701, lng: 21.01164758205414, title: "point B5" },
+  { lat: 52.23012572745442, lng: 21.011583209037784, title: "point B6" },
+  { lat: 52.230276867580336, lng: 21.01143836975098, title: "point B7" },
+  { lat: 52.23046414919644, lng: 21.011341810226444, title: "point B8" },
+];
 
 return (
     <>
@@ -278,7 +347,7 @@ return (
             A pretty CSS3 popup. <br /> Easily customizable.
           </Popup>
         </Marker>        
-        {/* <MyMarkers data={markerPoints} onPopupClosed={onPopupClosed}/>         */}
+        <MyMarkers data={markerPoints} onPopupClosed={onPopupClosed} onMoveEnd={onMoveEnd}/>        
         <Polyline positions={positions} pathOptions={polylineOptions} />
         {/* {positions.map((position, index) => (
           <Marker
@@ -304,14 +373,70 @@ return (
           <MovingMarker propPositions={positionsItem} move={moveFlgs[index]} whenStopped={() => stopTargetIdx(index)} />
         ))}
 
+      <LayersControl position="topright" collapsed={false} ref={lcRef} >
+        {/* <TileLayer {...tileLayer} /> */}
+
+        <LayersControl.Overlay name="point A" checked={checkedPointsA} >
+          <FeatureGroup>
+            {pointsA.map(({ lat, lng, title }, index) => (
+              <Marker key={index} position={[lat, lng]}>
+                <Popup>{title}</Popup>
+              </Marker>
+            ))}
+          </FeatureGroup>
+        </LayersControl.Overlay>
+        <LayersControl.Overlay name="point B" checked={checkedPointsB}>
+          <FeatureGroup>
+            {pointsB.map(({ lat, lng, title }, index) => (
+              <Marker key={index} position={[lat, lng]}>
+                <Popup>{title}</Popup>
+              </Marker>
+            ))}
+          </FeatureGroup>
+        </LayersControl.Overlay>
+      </LayersControl>
+
+      {/* <ControllingGroup /> */}
+
       </MapContainer>
-      <DiscreteSlider />
-      { positionsAll.map((positionsItem, index) => (
-        <>
-          <button onClick={() => startTargetIdx(index)}>start{index}</button>      
-          <button onClick={() => stopTargetIdx(index)}>stop{index}</button>      
-        </>
-      ))}
+      <DraggableBox />
+      <div >
+          <strong style={{cursor: 'move'}}><div>Drag here</div></strong>
+          <div>You must click my handle to drag me</div>
+      </div>
+
+      <Draggable style={{zIndex: 100000}}>
+        <div >
+          <div style={{cursor: 'move'}}>Drag here</div>
+          { positionsAll.map((positionsItem, index) => (
+            <>
+              <button onClick={() => startTargetIdx(index)}>start{index}</button>      
+              <button onClick={() => stopTargetIdx(index)}>stop{index}</button>      
+            </>
+          ))}
+        </div>
+      </Draggable>
+
+      <DiscreteSlider /> 
+
+      <button
+            onClick={() => {
+              lcRef.current._container.hidden = true;
+            }}
+          >
+            hide controller
+      </button>      
+      <button
+            onClick={() => {
+              setCheckedPointsA((oldValue) => !oldValue);
+              // lcRef.current.style.display = 'none';
+              //lcRef.current._container.hidden = true;
+              //console.log(lcRef.current._container.firstElementChild);
+              // console.log(lcRef.current._container.firstElementChild);
+            }}
+          >
+            toggle point A
+      </button>      
       <button
             onClick={() =>
               start()

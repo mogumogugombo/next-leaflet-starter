@@ -3,13 +3,28 @@ import TextField from '@mui/material/TextField';
 
 const PopupContent = ({data, index, open, onPopupClosed}) => {
     useEffect(() => {
+
+      console.log("PopupContent. useEffect!! data=" + JSON.stringify(data));
+      setLat(data.lat);
+      setLng(data.lng);
+    }, [data]);
+
+    useEffect(() => {
       if (!open) {
-        onPopupClosed(textValue, index);
+        onPopupClosed(label2, lat, lng, index);
       }
     },[open]) 
-    const [textValue, setTextValue] = useState(data.label2);
+    const [label2, setLabel2] = useState(data.content.label2);
+    const [lat, setLat] = useState(data.lat);
+    const [lng, setLng] = useState(data.lng);
     const handleChange = (e) => {
-      setTextValue(e.target.value);
+      setLabel2(e.target.value);
+    };
+    const handleChangeLat = (e) => {
+      setLat(e.target.value);
+    };
+    const handleChangeLng = (e) => {
+      setLng(e.target.value);
     };
   
     return (
@@ -17,8 +32,16 @@ const PopupContent = ({data, index, open, onPopupClosed}) => {
       {/* <div>data={JSON.stringify(data)}</div> */}
       <div> 
         <TextField id="outlined-basic" label="label2" variant="outlined" 
-            value={textValue} 
+            value={label2} 
             onChange={handleChange}
+        />
+        <TextField id="outlined-basic" label="lat" variant="outlined" 
+            value={lat} 
+            onChange={handleChangeLat}
+        />
+        <TextField id="outlined-basic" label="lng" variant="outlined" 
+            value={lng} 
+            onChange={handleChangeLng}
         />
       </div>
       {/* <div>open={open === true ? '1' : '0'}</div> */}

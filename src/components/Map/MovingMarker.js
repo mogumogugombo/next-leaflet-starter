@@ -21,7 +21,7 @@ const MovingMarker = ({ propPositions, move, whenStopped }) => {
   ];
 
   useEffect(() => {
-    console.log('propPositions=' + JSON.stringify(propPositions));
+    // console.log('propPositions=' + JSON.stringify(propPositions));
     // 線の座標データを取得するAPIなどからデータを取得する想定
     // ここではダミーデータとして固定の座標を使用
     const fetchPolylineData = async () => {
