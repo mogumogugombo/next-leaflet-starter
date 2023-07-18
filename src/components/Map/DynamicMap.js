@@ -11,9 +11,12 @@ import { FeatureGroup, Popup, Marker, LayersControl } from "react-leaflet";
 import MeasureMarkers from './MeasureMarkers';
 import MovingMarker from './MovingMarker';
 import MyMarkers from './MyMarkers';
+import Player from './Player';
 import 'l.movemarker';
 import { useMap } from 'react-leaflet'
 import Draggable from "react-draggable";
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import IconButton from '@mui/material/IconButton';
 
 require('leaflet.animatedmarker/src/AnimatedMarker');
 
@@ -37,6 +40,7 @@ const Map = ({ children, className, width, height, ...rest }) => {
   const [timerIndex, setTimerIndex] = useState(-1);
   const [checkedPointsA, setCheckedPointsA] = useState(true);
   const [checkedPointsB, setCheckedPointsB] = useState(true);
+  const [changed, setChanged] = useState(false);
   const polylineOptions = {
     color: 'blue',
     weight: 3,
@@ -146,7 +150,7 @@ function valuetext(value) {
 }
 
 
-const changed = (e, value) => {
+const sliderChanged = (e, value) => {
   console.log(JSON.stringify(points[value - 1]));
 };
 
@@ -206,6 +210,7 @@ const onPopupClosed = (newLabel2, newLat, newLng, index) => {
     }
   });
   setMarkerPoints(replacedPoints);
+  setChanged(true);
 }
 const onMoveEnd = (newLat, newLng, index) => {
   const replacedPoints = markerPoints.map((x, index2) => {
@@ -220,6 +225,7 @@ const onMoveEnd = (newLat, newLng, index) => {
     }
   });
   setMarkerPoints(replacedPoints);
+  setChanged(true);
 }
 
 
@@ -258,7 +264,7 @@ const DiscreteSlider = () => {
         marks
         min={1}
         max={8}
-        onChange={changed}
+        onChange={sliderChanged}
       />
     </Box>
   );
@@ -402,9 +408,21 @@ return (
       <DraggableBox />
       <div >
           <strong style={{cursor: 'move'}}><div>Drag here</div></strong>
-          <div>You must click my handle to drag me</div>
+          <div>changedFlg:{changed ? '1' : '0'}</div>
       </div>
 
+      { positionsAll.map((positionsItem, index) => (
+            <>
+              <Player
+                key={index} 
+                caption={"marker" + index}
+                propPlayingStatus={"pause"}
+                onClickPlay={() => startTargetIdx(index)}
+                onClickPause={() => stopTargetIdx(index)}
+              >
+              </Player>      
+            </>
+      ))}
       <Draggable style={{zIndex: 100000}}>
         <div >
           <div style={{cursor: 'move'}}>Drag here</div>
@@ -412,12 +430,21 @@ return (
             <>
               <button onClick={() => startTargetIdx(index)}>start{index}</button>      
               <button onClick={() => stopTargetIdx(index)}>stop{index}</button>      
+              {/* <Player
+                key={index} 
+                caption={"marker" + index}
+                propPlayingStatus={"pause"}
+                onClickPlay={() => startTargetIdx(index)}
+                onClickPause={() => stopTargetIdx(index)}
+              >
+              </Player>       */}
             </>
           ))}
         </div>
       </Draggable>
 
       <DiscreteSlider /> 
+      {/* <Player />  */}
 
       <button
             onClick={() => {
@@ -451,6 +478,16 @@ return (
           >
             stop
       </button>      
+      <IconButton aria-label="delete" onClick={() => console.log('play')}>
+        <PlayArrowIcon />
+      </IconButton>
+      <Player caption={"marker" + 0}
+                propPlayingStatus={"pause"}
+                onClickPlay={() => startTargetIdx(0)}
+                onClickPause={() => stopTargetIdx(0)}
+              >
+      </Player>      
+      
     </>
   )
 }

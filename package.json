@@ -20,6 +20,7 @@
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.0",
     "@mui/material": "^5.13.6",
     "copy-webpack-plugin": "^11.0.0",
     "l.movemarker": "^0.0.12",

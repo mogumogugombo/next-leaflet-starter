@@ -3,9 +3,9 @@ import { FeatureGroup, Popup, Marker } from "react-leaflet";
 import { useEffect, useState, useRef } from 'react';
 
 const MyMarkers = ({ data, onPopupClosed, onMoveEnd }) => {
-  useEffect(() => {
-    console.log("MyMarkers. useEffect!!");
-  }, [data]);
+  // useEffect(() => {
+  //   console.log("MyMarkers. useEffect!!");
+  // }, [data]);
 
     const [opens, setOpens] = useState([false, false, false, false]);
     return data.map(({ lat, lng, content }, index) => (
