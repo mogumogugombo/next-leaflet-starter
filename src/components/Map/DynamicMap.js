@@ -22,8 +22,8 @@ require('leaflet.animatedmarker/src/AnimatedMarker');
 
 const { MapContainer } = ReactLeaflet;
 
-const Map = ({ children, className, width, height, ...rest }) => {
-
+const Map = ({ children, className, width, height, drawerWidth, ...rest }) => {
+  console.log('rest', rest);
   let mapClassName = styles.map;
   const mapRef = useRef(null);
   const mapRef2 = useRef(null);
@@ -41,6 +41,8 @@ const Map = ({ children, className, width, height, ...rest }) => {
   const [checkedPointsA, setCheckedPointsA] = useState(true);
   const [checkedPointsB, setCheckedPointsB] = useState(true);
   const [changed, setChanged] = useState(false);
+  const [objStyle, setObjStyle] = useState({width: '100%'});
+  
   const polylineOptions = {
     color: 'blue',
     weight: 3,
@@ -51,8 +53,16 @@ const Map = ({ children, className, width, height, ...rest }) => {
   }
 
   useEffect(() => {
-    console.log("DynamicMap. useEffect!!");
+    console.log('mapClassName', mapClassName);
+    console.log("DynamicMap. useEffect. [0]");
+    setObjStyle({position:'relative', width: '1000px'});
   }, []);
+
+  useEffect(() => {
+    console.log("DynamicMap. useEffect. [1]");
+    // setObjStyle({width: '100%'});
+    setObjStyle({width: '800px'});
+  }, [drawerWidth]);
 
   useEffect(() => {
     (async function init() {
@@ -64,6 +74,7 @@ const Map = ({ children, className, width, height, ...rest }) => {
       });
     })();
   }, []);
+
 
   const points1 = [
     [52.2308124251888, 21.011003851890568],
@@ -296,9 +307,14 @@ const pointsB = [
 
 return (
     <>
-      <MapContainer className={mapClassName} {...rest} 
+
+      <MapContainer 
+        className={mapClassName}
+         {...rest} 
         whenCreated={mapInstance => (mapRef.current = mapInstance)}
         ref={mapRef2}
+        style={objStyle}
+        //style={{width: '800', height: '400'}}
       >
         {children(ReactLeaflet, Leaflet)}
         <Polyline
